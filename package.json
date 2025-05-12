@@ -1,0 +1,21 @@
+{
+  "name": "canadien",
+  "version": "1.0.0",
+  "description": "canadien score",
+  "main": "backend/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ."
+  },
+  "type": "module",
+  "author": "benoite",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0",
+    "open": "^10.1.2",
+    "play-sound": "^1.1.6",
+    "readline-sync": "^1.4.10",
+    "cors": "^2.8.5"
+  }
+}
