@@ -6,20 +6,37 @@ const container = document.getElementById("player-stats");
 fetch(`/stats?id=${playerId}`)
 .then(res=> res.json())
 .then(data =>{
+
+  const bioLines = `
+  ${data.birthDate ? `<p><strong>Birth Date:</strong> ${data.birthDate}</p>` : ""}
+  ${data.heightInInches ? `<p><strong>Height:</strong> ${data.heightInInches}</p>` : ""}
+  ${data.weightInPounds ? `<p><strong>Weight:</strong> ${data.weightInPounds} lbs</p>` : ""}
+  ${data.shootsCatches ? `<p><strong>Shoots:</strong> ${data.shootsCatches}</p>` : ""}
+  ${data.position ? `<p><strong>Position:</strong> ${data.position}</p>` : ""}
+  ${data.team ? `<p><strong>Team:</strong> ${data.team}</p>` : ""}
+`;
+  const seasonStats = getGoalieSeasonTotals(data.seasonTotals || []);
+
+  
     document.body.innerHTML = `
     <div class="playerInfo">
-      <div class="playerHeadshot">
-        <img src = "${data.headshot}" alt="player headshot">
+      <div class="backgroundImage" style="background-image: url('${data.heroImage}');"></div>
+      <div class="playerContent">
+        <div class="playerHeadshot">
+          <img src = "${data.headshot}" alt="player headshot">
+        </div>
+        <div class="playerBio">
+          <h1>${data.firstName} ${data.lastName} </h1>
+          ${bioLines}
+        </div>
       </div>
-      <h1>${data.firstName.default} ${data.lastName.default} #${data.sweaterNumber}</h1>
-      <p><strong>Birth Date:</strong> ${data.birthDate}</p>
-      <p><strong>Height:</strong> ${data.heightInInches} inches</p>
-      <p><strong>Weight:</strong> ${data.weightInPounds} lbs</p>
-      <p><strong>Shoots:</strong> ${data.shootsCatches}</p>
-      <p><strong>Position:</strong> ${data.position}</p>
-      <p><strong>Team:</strong> ${data.currentTeamAbbrev || 'N/A'}</p>
+      <div class="playerNumber">
+            <p> ${data.number? data.number: ""}<p>
+        </div>
     </div>
-    `;
+    <div class="playerStats">
+      ${seasonStats}
+    </div>`;
   })
   .catch(err => {
     document.body.innerHTML = `<p>Error fetching player data.</p>`;
@@ -27,36 +44,49 @@ fetch(`/stats?id=${playerId}`)
   });
 
 
-  /*  
+function getGoalieSeasonTotals(seasonTotals) {
+  if (!seasonTotals || seasonTotals.length === 0) return "<p>No season stats available.</p>";
 
-  */
-// async function fetchPlayerStats(id) {
+  const rows = seasonTotals.map(season => `
+    <tr>
+      <td>${season.season}</td>
+      <td>${season.teamName?.default || 'N/A'}</td>
+      <td>${season.leagueAbbrev}</td>
+      <td>${season.gamesPlayed? season.gamesPlayed: '--'}</td>
+      <td>${season.wins? season.wins: '0'}</td>
+      <td>${season.losses? season.losses: '0'}</td>
+      <td>${season.otLosses? season.otLosses: '0'}</td>
+      <td>${season.shotsAgainst? season.shotsAgainst: '--'}</td>
+      <td>${season.goalsAgainst? season.goalsAgainst: '--'}</td>
+      <td>${season.goalsAgainstAvg? season.goalsAgainstAvg: '--'}</td>
+      <td>${season.savePctg? season.savePctg: '--'}</td>
+      <td>${season.shutouts? season.shutouts: '0'}</td>
+      <td>${season.timeOnIce? season.timeOnIce: '--'}</td>
+    </tr>
+  `).join('');
 
-//         const {firstName, lastName, birthDate, heightInInches, weightInPounds, shootsCatches, position, currentTeamAbbrev} = data.player;
-//         const stats = data.stats?.regularSeason?.career;
-
-//         container.innerHTML = `
-//       <h1>${firstName} ${lastName}</h1>
-//       <p><strong>Birth Date:</strong> ${birthDate}</p>
-//       <p><strong>Height:</strong> ${heightInInches} inches</p>
-//       <p><strong>Weight:</strong> ${weightInPounds} lbs</p>
-//       <p><strong>Shoots:</strong> ${shootsCatches}</p>
-//       <p><strong>Position:</strong> ${position}</p>
-//       <p><strong>Team:</strong> ${currentTeamAbbrev || 'N/A'}</p>
-
-//       ${stats ? `
-//         <h2>Career Stats</h2>
-//         <p>Games: ${stats.games}</p>
-//         <p>Goals: ${stats.goals}</p>
-//         <p>Assists: ${stats.assists}</p>
-//         <p>Points: ${stats.points}</p>
-//       ` : `<p>No career stats available.</p>`}
-//     `;
-//     }
-//     catch(err){
-//         container.innerHTML = `<p>Error fetching stats</p>`;
-//         console.log(err);
-//     }
-
-    
-// }
+  return `
+    <table class="season-table">
+      <thead>
+        <tr>
+          <th>Season</th>
+          <th>Team</th>
+          <th>League</th>
+          <th>GP</th>
+          <th>W</th>
+          <th>L</th>
+          <th>OTL</th>
+          <th>SA</th>
+          <th>GA</th>
+          <th>GAA</th>
+          <th>SV%</th>
+          <th>SO</th>
+          <th>TOI</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  `;
+}
