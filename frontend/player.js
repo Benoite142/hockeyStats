@@ -4,10 +4,10 @@ const playerId = params.get("id");
 const container = document.getElementById("player-stats");
 
 fetch(`/stats?id=${playerId}`)
-.then(res=> res.json())
-.then(data =>{
+  .then(res => res.json())
+  .then(data => {
 
-  const bioLines = `
+    const bioLines = `
   ${data.birthDate ? `<p><strong>Birth Date:</strong> ${data.birthDate}</p>` : ""}
   ${data.heightInInches ? `<p><strong>Height:</strong> ${data.heightInInches}</p>` : ""}
   ${data.weightInPounds ? `<p><strong>Weight:</strong> ${data.weightInPounds} lbs</p>` : ""}
@@ -15,9 +15,9 @@ fetch(`/stats?id=${playerId}`)
   ${data.position ? `<p><strong>Position:</strong> ${data.position}</p>` : ""}
   ${data.team ? `<p><strong>Team:</strong> ${data.team}</p>` : ""}
 `;
-  const seasonStats = getGoalieSeasonTotals(data.seasonTotals || []);
+    const seasonStats = getGoalieSeasonTotals(data.seasonTotals || []);
 
-  
+
     document.body.innerHTML = `
     <div class="playerInfo">
       <div class="backgroundImage" style="background-image: url('${data.heroImage}');"></div>
@@ -31,7 +31,7 @@ fetch(`/stats?id=${playerId}`)
         </div>
       </div>
       <div class="playerNumber">
-            <p> ${data.number? data.number: ""}<p>
+            <p> ${data.number ? data.number : ""}<p>
         </div>
     </div>
     <div class="playerStats">
@@ -52,16 +52,16 @@ function getGoalieSeasonTotals(seasonTotals) {
       <td>${season.season}</td>
       <td>${season.teamName?.default || 'N/A'}</td>
       <td>${season.leagueAbbrev}</td>
-      <td>${season.gamesPlayed? season.gamesPlayed: '--'}</td>
-      <td>${season.wins? season.wins: '0'}</td>
-      <td>${season.losses? season.losses: '0'}</td>
-      <td>${season.otLosses? season.otLosses: '0'}</td>
-      <td>${season.shotsAgainst? season.shotsAgainst: '--'}</td>
-      <td>${season.goalsAgainst? season.goalsAgainst: '--'}</td>
-      <td>${season.goalsAgainstAvg? season.goalsAgainstAvg: '--'}</td>
-      <td>${season.savePctg? season.savePctg: '--'}</td>
-      <td>${season.shutouts? season.shutouts: '0'}</td>
-      <td>${season.timeOnIce? season.timeOnIce: '--'}</td>
+      <td>${season.gamesPlayed ? season.gamesPlayed : '--'}</td>
+      <td>${season.wins ? season.wins : '0'}</td>
+      <td>${season.losses ? season.losses : '0'}</td>
+      <td>${season.otLosses ? season.otLosses : '0'}</td>
+      <td>${season.shotsAgainst ? season.shotsAgainst : '--'}</td>
+      <td>${season.goalsAgainst ? season.goalsAgainst : '--'}</td>
+      <td>${season.goalsAgainstAvg ? season.goalsAgainstAvg : '--'}</td>
+      <td>${season.savePctg ? season.savePctg : '--'}</td>
+      <td>${season.shutouts ? season.shutouts : '0'}</td>
+      <td>${season.timeOnIce ? season.timeOnIce : '--'}</td>
     </tr>
   `).join('');
 
