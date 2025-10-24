@@ -1,21 +1,25 @@
 {
-  "name": "canadien",
-  "version": "1.0.0",
-  "description": "canadien score",
+  "name": "hockey-stats",
+  "version": "1.0.1",
+  "description": "hockey stats",
   "main": "backend/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ."
+    "start": "node --no-warnings backend/server.js",
+    "dev": "nodemon --no-warnings backend/server.js"
   },
   "type": "module",
   "author": "benoite",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
+    "i18n-iso-countries": "^7.14.0",
     "node-fetch": "^2.7.0",
+    "ol": "^10.6.1",
     "open": "^10.1.2",
     "play-sound": "^1.1.6",
-    "readline-sync": "^1.4.10",
-    "cors": "^2.8.5"
+    "readline-sync": "^1.4.10"
   }
 }

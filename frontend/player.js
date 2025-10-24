@@ -1,45 +1,121 @@
 const params = new URLSearchParams(window.location.search);
-const playerId = params.get("id");
+const playerId = params.get("id") || params.get("playerId"); // Handle both 'id' and 'playerId' parameters
+const playerName = params.get("player") || params.get("playerName"); // Handle both 'player' and 'playerName' parameters
 
 const container = document.getElementById("player-stats");
 
-fetch(`/stats?id=${playerId}`)
-.then(res=> res.json())
+// Function to fetch player data by ID
+function fetchPlayerById(id) {
+    return fetch(`/stats?id=${id}`)
+        .then(res => res.json());
+}
+
+// Function to search for player by name and then fetch their data
+async function fetchPlayerByName(name) {
+    try {
+        // First, search for the player
+        const searchResponse = await fetch(`/search?q=${encodeURIComponent(name)}`);
+        const searchData = await searchResponse.json();
+        
+        if (searchData && searchData.length > 0) {
+            // Find exact match or closest match
+            const exactMatch = searchData.find(player => 
+                `${player.name}`.toLowerCase() === name.toLowerCase()
+            );
+            
+            const playerToUse = exactMatch || searchData[0];
+            
+            // Fetch detailed stats using the player ID
+            return fetchPlayerById(playerToUse.playerId);
+        } else {
+            throw new Error('Player not found');
+        }
+    } catch (error) {
+        throw new Error(`Failed to find player: ${error.message}`);
+    }
+}
+
+// Determine which method to use and fetch player data
+const fetchPromise = playerId ? 
+    fetchPlayerById(playerId) : 
+    playerName ? 
+        fetchPlayerByName(playerName) : 
+        Promise.reject(new Error('No player ID or name provided'));
+
+fetchPromise
 .then(data =>{
 
   const bioLines = `
-  ${data.birthDate ? `<p><strong>Birth Date:</strong> ${data.birthDate}</p>` : ""}
-  ${data.heightInInches ? `<p><strong>Height:</strong> ${data.heightInInches}</p>` : ""}
-  ${data.weightInPounds ? `<p><strong>Weight:</strong> ${data.weightInPounds} lbs</p>` : ""}
-  ${data.shootsCatches ? `<p><strong>Shoots:</strong> ${data.shootsCatches}</p>` : ""}
+  ${data.birthDate ? `<p><strong>Date de naissance:</strong> ${data.birthDate}</p>` : ""}
+  ${data.birthCity ? `<p><strong>Lieux de naissance:</strong> ${data.birthCity}${data.birthStateProvince ? ', ' + data.birthStateProvince : ''}, ${data.birthCountry}</p>` : ""}
+  ${data.heightInInches ? `<p><strong>Taille:</strong> ${data.heightInInches}</p>` : ""}
+  ${data.weightInPounds ? `<p><strong>Poids:</strong> ${data.weightInPounds} lbs</p>` : ""}
+  ${data.shootsCatches ? `<p><strong>Tire:</strong> ${data.shootsCatches}</p>` : ""}
   ${data.position ? `<p><strong>Position:</strong> ${data.position}</p>` : ""}
-  ${data.team ? `<p><strong>Team:</strong> ${data.team}</p>` : ""}
+  ${data.team ? `<p><strong>Équipe:</strong> ${data.team}</p>` : ""}
 `;
-  const seasonStats = data.position === "Goalie"? getGoalieSeasonTotals(data.seasonTotals || []): getPlayerSeasonTotals(data.seasonTotals || []);
+    // Show loading state
+    document.getElementById('loading-container').style.display = 'block';
+    document.getElementById('player-info-section').style.display = 'none';
+    document.getElementById('player-stats-section').style.display = 'none';
 
-  
-    document.body.innerHTML = `
-    <div class="playerInfo">
-      <div class="backgroundImage" style="background-image: url('${data.heroImage}');"></div>
-      <div class="playerContent">
-        <div class="playerHeadshot">
-          <img src = "${data.headshot}" alt="player headshot">
+    const seasonStats = data.position === "Goalie"? getGoalieSeasonTotals(data.seasonTotals || []): getPlayerSeasonTotals(data.seasonTotals || []);
+
+    // Hide loading and show content
+    document.getElementById('loading-container').style.display = 'none';
+    document.getElementById('player-info-section').style.display = 'block';
+    document.getElementById('player-stats-section').style.display = 'block';
+    
+    // Update page title
+    document.title = `${data.firstName} ${data.lastName} - NHL Player Stats`;
+
+    // Enhanced player info display
+    document.getElementById('playerInfo').innerHTML = `
+        <div class="enhanced-player-card">
+            <div class="player-background" style="background-image: url('${data.heroImage}');">
+                <div class="player-background-overlay"></div>
+            </div>
+            <div class="player-card-content">
+                <div class="player-headshot-section">
+                    <div class="player-headshot-wrapper">
+                        <img src="${data.headshot}" alt="${data.firstName} ${data.lastName}" class="player-headshot-img">
+                        ${data.number ? `<div class="player-jersey-number">#${data.number}</div>` : ''}
+                    </div>
+                </div>
+                <div class="player-info-content">
+                    <div class="player-name-section">
+                        <h1 class="player-full-name">${data.firstName} ${data.lastName}</h1>
+                        ${data.team ? `<div class="player-current-team">${data.team}</div>` : ''}
+                    </div>
+                    <div class="player-bio-grid">
+                        ${bioLines}
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="playerBio">
-          <h1>${data.firstName} ${data.lastName} </h1>
-          ${bioLines}
+    `;
+
+    // Enhanced stats display
+    document.getElementById('player-stats').innerHTML = `
+        <div class="stats-content">
+            ${seasonStats}
         </div>
-      </div>
-      <div class="playerNumber">
-            <p> ${data.number? data.number: ""}<p>
-        </div>
-    </div>
-    <div class="playerStats">
-      ${seasonStats}
-    </div>`;
+    `;
   })
   .catch(err => {
-    document.body.innerHTML = `<p>Error fetching player data.</p>`;
+    // Hide loading and show error
+    document.getElementById('loading-container').style.display = 'none';
+    document.getElementById('player-info-section').style.display = 'block';
+    document.getElementById('playerInfo').innerHTML = `
+        <div class="error-state">
+            <h2>Player Not Found</h2>
+            <p>Unable to load player data. The player might not exist or there was a connection error.</p>
+            <div class="error-actions">
+                <a href="index.html" class="nav-button primary">Back to Search</a>
+                <button class="nav-button secondary" onclick="location.reload()">Try Again</button>
+            </div>
+        </div>
+    `;
     console.error(err);
   });
 
@@ -49,45 +125,47 @@ function getGoalieSeasonTotals(seasonTotals) {
 
   const rows = seasonTotals.map(season => `
     <tr>
-      <td>${season.season}</td>
+      <td style="background-color: #f1f5f9; font-weight: 700; border-right: 2px solid #cbd5e1;">${season.season}</td>
       <td>${season.teamName?.default || 'N/A'}</td>
       <td>${season.leagueAbbrev}</td>
-      <td>${season.gamesPlayed?? '--'}</td>
-      <td>${season.wins?? '--'}</td>
-      <td>${season.losses?? '--'}</td>
-      <td>${season.otLosses?? '--'}</td>
-      <td>${season.shotsAgainst?? '--'}</td>
-      <td>${season.goalsAgainst?? '--'}</td>
-      <td>${season.goalsAgainstAvg?? '--'}</td>
-      <td>${season.savePctg?? '--'}</td>
-      <td>${season.shutouts?? '--'}</td>
-      <td>${season.timeOnIce?? '--'}</td>
+      <td>${season.gamesPlayed ?? '--'}</td>
+      <td>${season.wins ?? '--'}</td>
+      <td>${season.losses ?? '--'}</td>
+      <td>${season.otLosses ?? '--'}</td>
+      <td>${season.shotsAgainst ?? '--'}</td>
+      <td>${season.goalsAgainst ?? '--'}</td>
+      <td>${season.goalsAgainstAvg ? parseFloat(season.goalsAgainstAvg).toFixed(3) : '--'}</td>
+      <td>${season.savePctg ? parseFloat(season.savePctg).toFixed(3) : '--'}</td>
+      <td>${season.shutouts ?? '--'}</td>
+      <td>${season.timeOnIce ?? '--'}</td>
     </tr>
   `).join('');
 
   return `
-    <table class="season-table">
-      <thead>
-        <tr>
-          <th>Season</th>
-          <th>Team</th>
-          <th>League</th>
-          <th>GP</th>
-          <th>W</th>
-          <th>L</th>
-          <th>OTL</th>
-          <th>SA</th>
-          <th>GA</th>
-          <th>GAA</th>
-          <th>SV%</th>
-          <th>SO</th>
-          <th>TOI</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th>Team</th>
+            <th>League</th>
+            <th>GP</th>
+            <th>W</th>
+            <th>L</th>
+            <th>OTL</th>
+            <th>SA</th>
+            <th>GA</th>
+            <th>GAA</th>
+            <th>SV%</th>
+            <th>SO</th>
+            <th>TOI</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -99,57 +177,59 @@ function getPlayerSeasonTotals(seasonTotals) {
     let formatedSeason = season.season.toString().slice(2,4) +'-'+ season.season.toString().slice(6,8);
   return `
     <tr>
-      <td>${formatedSeason}</td>
-      <td>${season.leagueAbbrev?? "--"}</td>
-      <td>${season.teamName.default?? "--"}</td>
-      <td>${season.gamesPlayed?? "--"}</td>
-      <td>${season.goals?? "--"}</td>
-      <td>${season.assists?? "--"}</td>
-      <td>${season.points?? "--"}</td>
-      <td>${season.plusMinus?? "--"}</td>
-      <td>${season.pim?? "--"}</td>
-      <td>${season.gameWinningGoals?? "--"}</td>
-      <td>${season.otGoals?? "--"}</td>
-      <td>${season.powerPlayGoals?? "--"}</td>
-      <td>${season.powerPlayPoints?? "--"}</td>
-      <td>${season.shorthandedGoals?? "--"}</td>
-      <td>${season.shorthandedPoints?? "--"}</td>
-      <td>${season.shootingPctg?? "--"}</td>
-      <td>${season.shots?? "--"}</td>
-      <td>${season.avgToi?? "--"}</td>
-      <td>${season.faceoffWinningPctg?? "--"}</td>
+      <td style="background-color: #f1f5f9; font-weight: 700; border-right: 2px solid #cbd5e1;">${formatedSeason}</td>
+      <td>${season.teamName?.default ?? "--"}</td>
+      <td>${season.leagueAbbrev ?? "--"}</td>
+      <td>${season.gamesPlayed ?? "--"}</td>
+      <td>${season.goals ?? "--"}</td>
+      <td>${season.assists ?? "--"}</td>
+      <td>${season.points ?? "--"}</td>
+      <td>${season.plusMinus ?? "--"}</td>
+      <td>${season.pim ?? "--"}</td>
+      <td>${season.gameWinningGoals ?? "--"}</td>
+      <td>${season.otGoals ?? "--"}</td>
+      <td>${season.powerPlayGoals ?? "--"}</td>
+      <td>${season.powerPlayPoints ?? "--"}</td>
+      <td>${season.shorthandedGoals ?? "--"}</td>
+      <td>${season.shorthandedPoints ?? "--"}</td>
+      <td>${season.shootingPctg ? parseFloat(season.shootingPctg).toFixed(3) : "--"}</td>
+      <td>${season.shots ?? "--"}</td>
+      <td>${season.avgToi ?? "--"}</td>
+      <td>${season.faceoffWinningPctg ? parseFloat(season.faceoffWinningPctg).toFixed(3) : "--"}</td>
     </tr>
     `;
 }).join('');
   
   return `
-    <table class="season-table">
-      <thead>
-        <tr>
-          <th>Season</th>
-          <th>Team</th>
-          <th>League</th>
-          <th>GP</th>
-          <th>Goals</th>
-          <th>Ast</th>
-          <th>Pts</th>
-          <th>+/-</th>
-          <th>PIM</th>
-          <th>GWG</th>
-          <th>OtG</th>
-          <th>PPG</th>
-          <th>PPP</th>
-          <th>ShG</th>
-          <th>ShP</th>
-          <th>Shot%</th>
-          <th>Shots</th>
-          <th>AvgTOI</th>
-          <th>FO%</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Season</th>
+            <th>Team</th>
+            <th>League</th>
+            <th>GP</th>
+            <th>Goals</th>
+            <th>Ast</th>
+            <th>Pts</th>
+            <th>+/-</th>
+            <th>PIM</th>
+            <th>GWG</th>
+            <th>OtG</th>
+            <th>PPG</th>
+            <th>PPP</th>
+            <th>ShG</th>
+            <th>ShP</th>
+            <th>Shot%</th>
+            <th>Shots</th>
+            <th>AvgTOI</th>
+            <th>FO%</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
   `;
 }

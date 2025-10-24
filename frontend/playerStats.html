@@ -3,15 +3,54 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Player Stats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stats de Joueurs - NHL Player Statistics</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 
-<body>
-    <div id="playerInfo">
-        <h1>Loading player stats...</h1>
-    </div>
-    <div id="player-stats"></div>
+<body class="player-stats-page">
+    <!-- Enhanced Header -->
+    <header class="modern-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <h1 class="site-title">Stats LNH</h1>
+            </div>
+            <nav class="main-navigation">
+                <a href="index.html" class="nav-button secondary">Recherche de Joueurs</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Loading State -->
+        <div id="loading-container" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Chargement des statistiques des joueurs...</p>
+        </div>
+
+        <!-- Player Information Section -->
+        <section id="player-info-section" class="player-info-section" style="display: none;">
+            <div id="playerInfo" class="enhanced-player-info">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Player Statistics Section -->
+        <section id="player-stats-section" class="stats-section" style="display: none;">
+            <div class="section-header">
+                <h2>Statistiques de Carrière</h2>
+            </div>
+            <div id="player-stats" class="enhanced-stats-container">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </section>
+
+        
+    </main>
+
+    <!-- Scripts -->
     <script src="player.js"></script>
 </body>
 

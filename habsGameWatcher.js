@@ -1,7 +1,9 @@
+// unused old file for watching habs games and playing sound on goals
+
 const CURRENT_SCORE_API_URL = "https://api-web.nhle.com/v1/score/now";
 
 const habsId = 8;
-const sensId = 9
+const sensId = 9;
 
 let previous_score = null;
 const sound_player = require('play-sound')();;
