@@ -24,7 +24,7 @@ export default router;
 function processdata(data){
     if (!data) return {};
 
-    const {firstName, lastName, headshot, heroImage, birthDate, heightInInches, weightInPounds, shootsCatches, 
+    const {firstName, lastName, headshot, heroImage, birthDate, birthStateProvince, heightInInches, weightInPounds, shootsCatches, 
         position, currentTeamAbbrev, sweaterNumber, birthCity, birthCountry, seasonTotals }= data;
     
     return{
@@ -42,11 +42,6 @@ function processdata(data){
         birthCity: birthCity?.default || "",
         birthCountry: birthCountry || "",
         seasonTotals: seasonTotals || "",
+        birthStateProvince: birthStateProvince?.default || ""
     };
 }
-
-// function processGoalieStats(seasonTotals){
-//     if(!seasonTotals) return [];
-
-//     const 
-// }

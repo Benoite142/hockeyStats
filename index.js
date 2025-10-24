@@ -1,4 +1,7 @@
-
+/*
+    Old file for searching NHL players from command line
+    and playing sound on habs goals
+*/
 
 const SEARCH_PLAYER_API_URL = "https://search.d3.nhle.com/api/v1/search/player?culture=en-us&limit=20&q=";
 

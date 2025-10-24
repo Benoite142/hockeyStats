@@ -9,7 +9,6 @@ const positionDictionnary = new Map([
 
 export function convertInchesInFoot(heightInInches){
     if (!heightInInches) return "";
-    console.log(heightInInches);
     return `${Math.floor(heightInInches/12)}'${heightInInches % 12}`;
 }
 
@@ -29,11 +28,3 @@ export function convertPosition(position){
     return positionDictionnary.get(position) || position;
     
 }
-
-
-
-// module.exports = {
-//     convertInchesInFoot,
-//     convertShoot,
-//     convertPosition
-// }; 
