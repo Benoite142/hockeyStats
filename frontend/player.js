@@ -68,33 +68,33 @@ fetchPromise
 
     // Update page title
     document.title = `${data.firstName} ${data.lastName} - NHL Player Stats`;
-
     // Enhanced player info display
     document.getElementById('playerInfo').innerHTML = `
-        <div class="enhanced-player-card">
-            <div class="player-background" style="background-image: url('${data.heroImage}');">
-                <div class="player-background-overlay"></div>
-                <div class="player-card-content">
+    <div class="enhanced-player-card">
+        <div class="player-background" style="background-image: url('${data.heroImage}');">
+            <div class="player-background-overlay"></div>
+            <div class="player-card-content">
+              <div class="player-bio-content">
+                <div class="player-bio-grid">${bioLines}</div>
                 <div class="player-headshot-section">
                     <div class="player-headshot-wrapper">
                         <img src="${data.headshot}" alt="${data.firstName} ${data.lastName}" class="player-headshot-img">
-                        ${data.number ? `<div class="player-jersey-number">#${data.number}</div>` : ''}
+                        
                     </div>
                 </div>
-                <div class="player-info-content">
-                    <div class="player-name-section">
-                        <h1 class="player-full-name">${data.firstName} ${data.lastName}</h1>
-                        ${data.team ? `<div class="player-current-team">${data.team}</div>` : ''}
-                    </div>
-                    <div class="player-bio-grid">
-                        ${bioLines}
-                    </div>
-                </div>
-            </div>
-            </div>
-            
+                <div class="player-jersey-number">${data.number ? `#${data.number}` : ''}</div>
+              </div>
+              
+              <div class="player-info-content">
+                <h1 class="player-full-name">${data.firstName} ${data.lastName}</h1>
+                  <div class="player-career-stats">
+                    <h2> TODO</h2> 
+                  </div>    
+              </div>
+          </div>
         </div>
-    `;
+    </div>
+`;
 
     // Enhanced stats display
     document.getElementById('player-stats').innerHTML = `
