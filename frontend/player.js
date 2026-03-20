@@ -65,7 +65,7 @@ fetchPromise
     document.getElementById('loading-container').style.display = 'none';
     document.getElementById('player-info-section').style.display = 'block';
     document.getElementById('player-stats-section').style.display = 'block';
-
+    console.log(data.careerTotals);
     // Update page title
     document.title = `${data.firstName} ${data.lastName} - NHL Player Stats`;
     // Enhanced player info display
@@ -88,7 +88,25 @@ fetchPromise
               <div class="player-info-content">
                 <h1 class="player-full-name">${data.firstName} ${data.lastName}</h1>
                   <div class="player-career-stats">
-                    <h2> TODO</h2> 
+                    <h1 class="career-stats-title">Career Totals</h1>
+                    <table class="career-stats-table">
+                      <thead>
+                        <tr>
+                          <th>Games Played</th>
+                          <th>Goals</th>
+                          <th>Assists</th>
+                          <th>Points</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>${data.careerTotals?.regularSeason.gamesPlayed ?? '--'}</td>
+                          <td>${data.careerTotals?.regularSeason.goals ?? '--'}</td>
+                          <td>${data.careerTotals?.regularSeason.assists ?? '--'}</td>
+                          <td>${data.careerTotals?.regularSeason.points ?? '--'}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>    
               </div>
           </div>
