@@ -144,6 +144,7 @@ function getGoalieSeasonTotals(seasonTotals) {
 
   const internationalLeaguesDictionary = {
     'OG': 'Olympic Games',
+    'W-Cup': 'World Cup',
     'Olympics': 'Olympic Games',
     '4 Nations': '4 Nations Cup',
     'WC': 'World Championship',
@@ -154,7 +155,7 @@ function getGoalieSeasonTotals(seasonTotals) {
     'International': 'International',
     'WJC-20': 'World Junior Championship (U20)',
     'WJC-18': 'World U18 Championship',
-    'WHC-17': 'World Hockey Challenge (U17)',
+    'WHC-17': 'World Hockey Challenge (U17)'
   }
 
   const playoffStats = seasonTotals.filter(season => season.gameTypeId === 3);
@@ -289,8 +290,10 @@ function getPlayerSeasonTotals(seasonTotals) {
 
   const internationalLeaguesDictionary = {
     'OG': 'Olympic Games',
+    'Olympics': 'Olympic Games',
     '4 Nations': '4 Nations Cup',
     'WC': 'World Championship',
+    'W-Cup': 'World Cup',
     'WCup': 'World Cup',
     'WJC-A': 'World Junior Championship (U20)',
     'WC-A': 'World Championship (Senior)',
