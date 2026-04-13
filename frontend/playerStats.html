@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-key="site_title">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stats de Joueurs - NHL Player Statistics</title>
+    <title data-translate="site_title">Stats de Joueurs - NHL Player Statistics</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
 </head>
 
 <body class="player-stats-page">
@@ -14,10 +14,11 @@
     <header class="modern-header">
         <div class="header-container">
             <div class="logo-section">
-                <h1 class="site-title">Stats LNH</h1>
+                <h1 class="site-title" data-translate="site_title">Stats LNH</h1>
             </div>
             <nav class="main-navigation">
-                <a href="index.html" class="nav-button secondary">Recherche de Joueurs</a>
+                <a href="index.html" class="nav-button secondary" data-translate="search_players">Recherche de
+                    Joueurs</a>
             </nav>
         </div>
     </header>
@@ -27,7 +28,7 @@
         <!-- Loading State -->
         <div id="loading-container" class="loading-state">
             <div class="loading-spinner"></div>
-            <p>Chargement des statistiques des joueurs...</p>
+            <p data-translate="loading_player_stats">Chargement des statistiques des joueurs...</p>
         </div>
 
         <!-- Player Information Section -->
@@ -40,7 +41,7 @@
         <!-- Player Statistics Section -->
         <section id="player-stats-section" class="stats-section" style="display: none;">
             <div class="section-header">
-                <h2>Career Statistics</h2>
+                <h2 data-translate="career_stats">Career Statistics</h2>
             </div>
             <div id="player-stats" class="enhanced-stats-container">
                 <!-- Content will be populated by JavaScript -->
@@ -51,7 +52,15 @@
     </main>
 
     <!-- Scripts -->
+    <script src="./utils/translations.js"></script>
     <script src="player.js"></script>
+
+    <script>
+        // Initialize translations when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            translator.init();
+        });
+    </script>
 </body>
 
 </html>

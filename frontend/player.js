@@ -3,12 +3,15 @@ const playerId = params.get("id") || params.get("playerId"); // Handle both 'id'
 const playerName = params.get("player") || params.get("playerName"); // Handle both 'player' and 'playerName' parameters
 
 const container = document.getElementById("player-stats");
+let currentPlayerData = null;
+window.currentPlayerData = null;
 
 // Function to fetch player data by ID
 function fetchPlayerById(id) {
   return fetch(`/stats?id=${id}`)
     .then(res => res.json());
 }
+
 
 // Function to search for player by name and then fetch their data
 async function fetchPlayerByName(name) {
@@ -24,9 +27,11 @@ async function fetchPlayerByName(name) {
       );
 
       const playerToUse = exactMatch || searchData[0];
+      const playerData = await fetchPlayerById(playerToUse.playerId);
+      currentPlayerData = playerData;
+      window.currentPlayerData = playerData;
 
-      // Fetch detailed stats using the player ID
-      return fetchPlayerById(playerToUse.playerId);
+      return playerData;
     } else {
       throw new Error('Player not found');
     }
@@ -35,41 +40,25 @@ async function fetchPlayerByName(name) {
   }
 }
 
-// Determine which method to use and fetch player data
-const fetchPromise = playerId ?
-  fetchPlayerById(playerId) :
-  playerName ?
-    fetchPlayerByName(playerName) :
-    Promise.reject(new Error('No player ID or name provided'));
+function renderPlayerContent(data) {
+  const t = translator.getDynamicTranslations();
 
-fetchPromise
-  .then(data => {
+  const bioLines = `
+    ${data.birthDate ? `<p><strong>${t.date_of_birth}:</strong> ${data.birthDate}</p>` : ""}
+    ${data.birthCity ? `<p><strong>${t.birth_place}:</strong> ${data.birthCity}${data.birthStateProvince ? ', ' + data.birthStateProvince : ''}, ${data.birthCountry}</p>` : ""}
+    ${data.heightInInches ? `<p><strong>${t.height}:</strong> ${data.heightInInches}</p>` : ""}
+    ${data.weightInPounds ? `<p><strong>${t.weight}:</strong> ${data.weightInPounds} lbs</p>` : ""}
+    ${data.shootsCatches ? `<p><strong>${t.shoots}:</strong> ${data.shootsCatches}</p>` : ""}
+    ${data.position ? `<p><strong>${t.position}:</strong> ${data.position}</p>` : ""}
+    ${data.team ? `<p><strong>${t.team}:</strong> ${data.team}</p>` : ""}
+  `;
 
-    const bioLines = `
-  ${data.birthDate ? `<p><strong>Date de naissance:</strong> ${data.birthDate}</p>` : ""}
-  ${data.birthCity ? `<p><strong>Lieux de naissance:</strong> ${data.birthCity}${data.birthStateProvince ? ', ' + data.birthStateProvince : ''}, ${data.birthCountry}</p>` : ""}
-  ${data.heightInInches ? `<p><strong>Taille:</strong> ${data.heightInInches}</p>` : ""}
-  ${data.weightInPounds ? `<p><strong>Poids:</strong> ${data.weightInPounds} lbs</p>` : ""}
-  ${data.shootsCatches ? `<p><strong>Tire:</strong> ${data.shootsCatches}</p>` : ""}
-  ${data.position ? `<p><strong>Position:</strong> ${data.position}</p>` : ""}
-  ${data.team ? `<p><strong>Équipe:</strong> ${data.team}</p>` : ""}
-`;
-    // Show loading state
-    document.getElementById('loading-container').style.display = 'block';
-    document.getElementById('player-info-section').style.display = 'none';
-    document.getElementById('player-stats-section').style.display = 'none';
+  // Check if career totals exist, if not show message
+  const hasCareerStats = data.careerTotals && data.careerTotals.regularSeason;
+  console.log('Career totals:', data.careerTotals); // Debug log
 
-    const seasonStats = data.position === "Goalie" ? getGoalieSeasonTotals(data.seasonTotals || []) : getPlayerSeasonTotals(data.seasonTotals || []);
-
-    // Hide loading and show content
-    document.getElementById('loading-container').style.display = 'none';
-    document.getElementById('player-info-section').style.display = 'block';
-    document.getElementById('player-stats-section').style.display = 'block';
-    console.log(data.careerTotals);
-    // Update page title
-    document.title = `${data.firstName} ${data.lastName} - NHL Player Stats`;
-    // Enhanced player info display
-    document.getElementById('playerInfo').innerHTML = `
+  // Enhanced player info display
+  document.getElementById('playerInfo').innerHTML = `
     <div class="enhanced-player-card">
         <div class="player-background" style="background-image: url('${data.heroImage}');">
             <div class="player-background-overlay"></div>
@@ -79,7 +68,6 @@ fetchPromise
                 <div class="player-headshot-section">
                     <div class="player-headshot-wrapper">
                         <img src="${data.headshot}" alt="${data.firstName} ${data.lastName}" class="player-headshot-img">
-                        
                     </div>
                 </div>
                 <div class="player-jersey-number">${data.number ? `#${data.number}` : ''}</div>
@@ -88,59 +76,110 @@ fetchPromise
               <div class="player-info-content">
                 <h1 class="player-full-name">${data.firstName} ${data.lastName}</h1>
                   <div class="player-career-stats">
-                    <h1 class="career-stats-title">Career Totals</h1>
-                    <table class="career-stats-table">
-                      <thead>
-                        <tr>
-                          <th>Games Played</th>
-                          <th>Goals</th>
-                          <th>Assists</th>
-                          <th>Points</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>${data.careerTotals?.regularSeason.gamesPlayed ?? '--'}</td>
-                          <td>${data.careerTotals?.regularSeason.goals ?? '--'}</td>
-                          <td>${data.careerTotals?.regularSeason.assists ?? '--'}</td>
-                          <td>${data.careerTotals?.regularSeason.points ?? '--'}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <h1 class="career-stats-title">${t.career_stats}</h1>
+                    ${hasCareerStats ? `
+                      <table class="career-stats-table">
+                        <thead>
+                          <tr>
+                            <th>${t.career_games_played}</th>
+                            <th>${t.career_goals}</th>
+                            <th>${t.career_assists}</th>
+                            <th>${t.career_points}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>${data.careerTotals.regularSeason.gamesPlayed ?? '--'}</td>
+                            <td>${data.careerTotals.regularSeason.goals ?? '--'}</td>
+                            <td>${data.careerTotals.regularSeason.assists ?? '--'}</td>
+                            <td>${data.careerTotals.regularSeason.points ?? '--'}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    ` : `
+                      <div class="no-career-stats">
+                        <p>Career statistics not available for this player.</p>
+                      </div>
+                    `}
                   </div>    
               </div>
           </div>
         </div>
     </div>
-`;
+  `;
 
-    // Enhanced stats display
-    document.getElementById('player-stats').innerHTML = `
-        <div class="stats-content">
-            ${seasonStats}
-        </div>
-    `;
-  })
-  .catch(err => {
+  const seasonStats = data.position === "Goalie" ?
+    getGoalieSeasonTotals(data.seasonTotals || [], t) :
+    getPlayerSeasonTotals(data.seasonTotals || [], t);
+
+  // Enhanced stats display
+  document.getElementById('player-stats').innerHTML = `
+      <div class="stats-content">
+          ${seasonStats}
+      </div>
+  `;
+}
+
+async function loadPlayerData() {
+  try {
+    await translator.init();
+
+    const t = translator.getDynamicTranslations();
+
+    // Determine which method to use and fetch player data
+    currentPlayerData = await (playerId ?
+      fetchPlayerById(playerId) :
+      playerName ?
+        fetchPlayerByName(playerName) :
+        Promise.reject(new Error('No player ID or name provided'))
+    );
+
+    window.currentPlayerData = currentPlayerData;
+    window.renderPlayerContent = renderPlayerContent;
+
+
+    // Show loading state
+    document.getElementById('loading-container').style.display = 'block';
+    document.getElementById('player-info-section').style.display = 'none';
+    document.getElementById('player-stats-section').style.display = 'none';
+
+    // Hide loading and show content
+    document.getElementById('loading-container').style.display = 'none';
+    document.getElementById('player-info-section').style.display = 'block';
+    document.getElementById('player-stats-section').style.display = 'block';
+
+    // Update page title
+    document.title = `${currentPlayerData.firstName} ${currentPlayerData.lastName} - NHL Player Stats`;
+
+    // Render the content
+    renderPlayerContent(currentPlayerData);
+
+  }
+  catch (err) {
+    const t = translator.getDynamicTranslations();
     // Hide loading and show error
     document.getElementById('loading-container').style.display = 'none';
     document.getElementById('player-info-section').style.display = 'block';
     document.getElementById('playerInfo').innerHTML = `
         <div class="error-state">
-            <h2>Player Not Found</h2>
-            <p>Unable to load player data. The player might not exist or there was a connection error.</p>
+            <h2>${t.player_not_found}</h2>
+            <p>${t.unable_to_load}</p>
             <div class="error-actions">
-                <a href="index.html" class="nav-button primary">Back to Search</a>
-                <button class="nav-button secondary" onclick="location.reload()">Try Again</button>
+                <a href="index.html" class="nav-button primary">${t.back_to_search}</a>
+                <button class="nav-button secondary" onclick="location.reload()">${t.try_again}</button>
             </div>
         </div>
     `;
     console.error(err);
-  });
+  }
+}
 
 
-function getGoalieSeasonTotals(seasonTotals) {
-  if (!seasonTotals || seasonTotals.length === 0) return "<p>No season stats available.</p>";
+document.addEventListener('DOMContentLoaded', loadPlayerData);
+
+
+function getGoalieSeasonTotals(seasonTotals, t) {
+  if (!seasonTotals || seasonTotals.length === 0) return `<p>${t.no_season_stats}</p>`;
 
   const internationalLeaguesDictionary = {
     'OG': 'Olympic Games',
