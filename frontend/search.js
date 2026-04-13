@@ -14,7 +14,7 @@ searchClear.addEventListener("click", () => {
     searchClear.style.display = "none";
     noResultsDiv.style.display = "none";
     input.focus();
-    
+
     // Clear any pending search
     if (searchTimeout) {
         clearTimeout(searchTimeout);
@@ -32,7 +32,7 @@ input.addEventListener("input", () => {
 
 // Debounced search function
 async function performSearch(query) {
-    if (query.length === 0) {   
+    if (query.length === 0) {
         resultsDiv.innerHTML = "";
         noResultsDiv.style.display = "none";
         return;
@@ -86,9 +86,9 @@ async function performSearch(query) {
 
         // Add click event listeners to player cards
         document.querySelectorAll(".player-search-card").forEach(card => {
-            card.addEventListener("click", function(e) {
+            card.addEventListener("click", function (e) {
                 const playerId = this.getAttribute("data-id");
-                
+
                 // Add visual feedback
                 this.style.transform = "scale(0.98)";
                 setTimeout(() => {
@@ -96,11 +96,11 @@ async function performSearch(query) {
                 }, 100);
             });
 
-            card.addEventListener("mouseenter", function() {
+            card.addEventListener("mouseenter", function () {
                 this.style.transform = "translateY(-2px)";
             });
 
-            card.addEventListener("mouseleave", function() {
+            card.addEventListener("mouseleave", function () {
                 this.style.transform = "translateY(0)";
             });
         });
@@ -119,7 +119,7 @@ async function performSearch(query) {
 // Debounced input event listener
 input.addEventListener("input", () => {
     const query = input.value.trim();
-    
+
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
@@ -129,7 +129,7 @@ input.addEventListener("input", () => {
         noResultsDiv.style.display = "none";
         return;
     }
-    
+
     resultsDiv.innerHTML = `
         <div class="search-loading">
             <div class="loading-spinner small"></div>
@@ -141,3 +141,62 @@ input.addEventListener("input", () => {
         performSearch(query);
     }, SEARCH_DELAY);
 });
+
+function updateSearchResults(data) {
+    if (data.length === 0) {
+        resultsDiv.innerHTML = "";
+        noResultsDiv.style.display = "block";
+        return;
+    }
+
+    noResultsDiv.style.display = "none";
+    const playersText = data.length === 1 ? translator.translate('player_found') : translator.translate('players_found');
+
+    resultsDiv.innerHTML = `
+        <div class="results-header">
+            <h3>${translator.translate('search_results')} (${data.length} ${playersText})</h3>
+        </div>
+        <div class="players-grid">
+            ${data.map(p => `
+                <div class="player-search-card" data-id="${p.playerId}">
+                    <div class="player-card-content">
+                        <div class="player-main-info">
+                            <h4 class="player-name">${p.name}</h4>
+                            <div class="player-position">${p.positionCode ?? 'N/A'}</div>
+                        </div>
+                        <div class="player-team-info">
+                            <span class="team-name">${p.lastTeamAbbrev ?? 'N/A'}</span>
+                            <span class="player-status ${p.active ? 'active' : 'inactive'}">
+                                ${p.active ? translator.translate('active') : translator.translate('inactive')}
+                            </span>
+                        </div>
+                        <div class="player-card-action">
+                            <span class="view-stats-hint">${translator.translate('link_to_stats')}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+    `;
+
+    // Add click event listeners to player cards
+    document.querySelectorAll(".player-search-card").forEach(card => {
+        card.addEventListener("click", function (e) {
+            const playerId = this.getAttribute("data-id");
+            this.style.transform = "scale(0.98)";
+            setTimeout(() => {
+                window.location.href = `/playerStats.html?id=${playerId}`;
+            }, 100);
+        });
+    });
+}
+
+// Update the loading state in performSearch function
+function showLoadingState() {
+    resultsDiv.innerHTML = `
+        <div class="search-loading">
+            <div class="loading-spinner small"></div>
+            <span>${translator.translate('searching_players')}</span>
+        </div>
+    `;
+}

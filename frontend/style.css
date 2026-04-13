@@ -872,3 +872,39 @@ h1 {
         box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15) !important;
     }
 }
+
+
+/* Add this to your existing style.css */
+.language-switch {
+    display: flex;
+    gap: 0;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 2px;
+    border: 1px solid #e2e8f0;
+}
+
+.lang-btn {
+    background: transparent;
+    border: none;
+    color: #475569;
+    /* Changed from white to dark gray */
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    min-width: 32px;
+}
+
+.lang-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.lang-btn.active {
+    background: #475569;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

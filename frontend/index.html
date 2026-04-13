@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-key="site_title">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recherche de Joueurs de la NHL</title>
+    <title data-translate="site_title">NHL Statistics</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,10 +13,10 @@
     <header class="modern-header">
         <div class="header-container">
             <div class="logo-section">
-                <h1 class="site-title">Stats LNH</h1>
+                <h1 class="site-title" data-translate="site_title">Stats LNH</h1>
             </div>
             <nav class="main-navigation">
-                <a href="index.html" class="nav-button primary">Recherche de Joueurs</a>
+                <a href="index.html" class="nav-button primary" data-translate="search_players">Recherche de Joueurs</a>
             </nav>
         </div>
     </header>
@@ -25,25 +25,27 @@
     <main class="main-content">
         <section class="hero-section">
             <div class="hero-content">
-                <h1 class="hero-title">Trouvez les Statistiques des Joueurs de la LNH</h1>
-                <p class="hero-description">Recherchez n'importe quel joueur de la LNH pour voir des statistiques détaillées, des informations sur sa carrière.</p>
+                <h1 class="hero-title" data-translate="home_page_title">Trouvez les Statistiques des Joueurs de la LNH
+                </h1>
+                <p class="hero-description" data-translate="home_page_description">Recherchez n'importe quel joueur de
+                    la LNH
+                    pour voir des statistiques
+                    détaillées, des informations sur sa carrière.</p>
             </div>
         </section>
 
         <!-- Search Section -->
         <section class="search-section">
-            <div class="search-container">            <div class="search-box-wrapper">
-                <input 
-                    type="text" 
-                    id="search" 
-                    class="enhanced-search-input"
-                    placeholder="Écrivez un nom d'un joueur (e.g., Connor McDavid, Sidney Crosby)..." 
-                    autocomplete="off" 
-                />
-                <div class="search-clear" id="search-clear" style="display: none;">✕</div>
+            <div class="search-container">
+                <div class="search-box-wrapper">
+                    <input type="text" id="search" class="enhanced-search-input" data-translate="search_placeholder"
+                        placeholder="Écrivez un nom d'un joueur (e.g., Connor McDavid, Sidney Crosby)..."
+                        autocomplete="off" />
+                    <div class="search-clear" id="search-clear" style="display: none;">✕</div>
                 </div>
                 <div class="search-suggestions">
-                    <div class="suggestion-item">Essayer: Connor McDavid, Auston Matthews, Sidney Crosby</div>
+                    <div class="suggestion-item" data-translate="search_suggestion">Essayer: Connor McDavid, Auston
+                        Matthews, Sidney Crosby</div>
                 </div>
             </div>
         </section>
@@ -54,14 +56,22 @@
                 <div id="results" class="enhanced-results">
                 </div>
                 <div id="no-results" class="no-results" style="display: none;">
-                    <h3>Aucun joueur trouvé</h3>
-                    <p>Essayez d'ajuster vos termes de recherche ou vérifiez l'orthographe.</p>
+                    <h3 data-translate="no_results_found">Aucun joueur trouvé</h3>
+                    <p data-translate="no_results_suggestion">Essayez d'ajuster vos termes de recherche ou vérifiez
+                        l'orthographe.</p>
                 </div>
             </div>
         </section>
     </main>
 
+    <script src="./utils/translations.js"></script>
     <script src="search.js"></script>
+    <script>
+        // Initialize translations when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            translator.init();
+        });
+    </script>
 </body>
 
 </html>
